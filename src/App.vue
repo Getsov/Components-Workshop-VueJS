@@ -1,28 +1,91 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <Header />
+    <main>
+      <Navigation
+        :navItems="technologyNames"
+        @nav-click="onMenuClick"
+        @on-create-subject="onCreateSubject"
+      />
+      <div class="main-content">
+        <Subjects
+          :technologies="tutorials.technologies"
+          :selectedMenuId="selectedMenuId"
+          :selectedSubject="selectedSubject"
+          @subject-click="onSubjectClick"
+        />
+        <Content>
+          <NewSubject v-if="isCreateView" />
+          <p v-else>{{ selectedContent }}</p>
+        </Content>
+      </div>
+    </main>
+
+    <Footer />
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Header from "@/components/core/Header.vue";
+import Footer from "@/components/core/Footer.vue";
+import Subjects from "@/components/core/Subjects.vue";
+import Navigation from "@/components/core/Navigation.vue";
+import Content from "@/components/core/Content.vue";
+import NewSubject from "@/components/NewSubject.vue";
+
+import jsonData from "./assets/tutorials.json";
+
+const defaultMenuId = jsonData.technologies[0].id;
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    Header,
+    Footer,
+    Subjects,
+    Content,
+    Navigation,
+    NewSubject,
+  },
+  data() {
+    return {
+      isCreateView: false,
+      tutorials: { ...jsonData },
+      selectedMenuId: defaultMenuId,
+      selectedSubject: "",
+    };
+  },
+  computed: {
+    technologyNames() {
+      return this.tutorials.technologies.map((tech) => ({
+        id: tech.id,
+        name: tech.name,
+      }));
+    },
+    selectedContent() {
+      const { subjects } = this.tutorials.technologies.find(
+        (tech) => tech.id === this.selectedMenuId
+      );
+      const subject = subjects.find((sub) => sub.name === this.selectedSubject);
+      return subject ? subject.content : "";
+    },
+  },
+  methods: {
+    onMenuClick(id) {
+      this.selectedMenuId = id;
+      this.selectedSubject = "";
+      this.isCreateView = false;
+    },
+    onSubjectClick(name) {
+      this.selectedSubject = name;
+      this.isCreateView = false;
+    },
+    onCreateSubject() {
+      this.isCreateView = true;
+      this.selectedSubject = "";
+    },
+  },
+};
 </script>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
-</style>
+<style></style>

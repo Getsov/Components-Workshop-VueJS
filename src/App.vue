@@ -14,9 +14,13 @@
           :selectedSubject="selectedSubject"
           @subject-click="onSubjectClick"
         />
-        <Content>
-          <NewSubject v-if="isCreateView" />
-          <p v-else>{{ selectedContent }}</p>
+        <Content :technologies="technologyNames">
+          <NewSubject
+            v-if="isCreateView"
+            :technologies="technologyNames"
+            @on-save="onSubjectSave"
+          />
+          <div v-else v-html="selectedContent"></div>
         </Content>
       </div>
     </main>
@@ -83,6 +87,14 @@ export default {
     onCreateSubject() {
       this.isCreateView = true;
       this.selectedSubject = "";
+    },
+    onSubjectSave(technologyId, newData) {
+      const { technologies } = this.tutorials;
+      const selectedTech = technologies.find(
+        (tech) => tech.id === technologyId
+      );
+      selectedTech.subjects.push(newData);
+      this.isCreateView = false;
     },
   },
 };
